@@ -35,7 +35,7 @@ class Block {
     // When called this method retrns the data unencoded
     blockDecode() {
         let self = this;
-        return new Promise(async (resolve) => {
+        return new Promise(async (resolve) => { // Return JSON Obj Decoded
             let blockClone = JSON.parse(JSON.stringify(self));
             blockClone.data = hex2ascii(blockClone.data)
             resolve(blockClone)
