@@ -30,5 +30,5 @@ Step 5: Call the validate chain endpoint to have the program check the integrity
 <img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/Validate%20Chain.gif"" />
 
 MISC: Use the /block/ endpoint to provide either a block height or a hash to return a specific block or transaction.
-<img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/BlockbyHeight.gif" width="40" height="40" />
+<img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/BlockbyHeight.gif"  />
 
