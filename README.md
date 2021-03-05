@@ -27,7 +27,7 @@ Step 4: Show off your stars to all your friends and use the immutable ledger to 
 <img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/StarsByWallet.gif" />
 
 Step 5: Call the validate chain endpoint to have the program check the integrity and postion of each block on the chain to see if anything has been tampered with.
-<img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/Validate%20Chain.gif"" />
+<img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/Validate%20Chain.gif" />
 
 MISC: Use the /block/ endpoint to provide either a block height or a hash to return a specific block or transaction.
 <img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/BlockbyHeight.gif"  />
