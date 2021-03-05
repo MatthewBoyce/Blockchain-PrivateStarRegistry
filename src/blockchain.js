@@ -1,38 +1,35 @@
 const SHA256 = require('crypto-js/sha256');
 const hex2ascii = require('hex2ascii');
 const BlockClass = require('./block.js');
+const bitcoinMessage = require('bitcoinjs-message');
   
   /* ===== Blockchain Class ==============================
   |  Class with a constructor for blockchain data model  |
-  |  with functions to support:                          |                           |
-  |     - getLatestBlock()                               |
-  |     - addBlock()                                     |
-  |     - getBlock()                                     |
-  |     - validateBlock()                                |
-  |     - validateChain()                                |
     ====================================================*/
   
 class Blockchain{
     constructor(){
      // new chain array
     this.chain = [];
-
     // Create Gensis Block
-    this.addBlock("Genesis block");
+    this.addBlock("Genesis block", "Admin");
 }
-
-
-    // BLOCKCHAIN CONSTRUCTION METHOD: addBlock method
-    addBlock(data){
+       /**
+     * The  addBlock(data, owner) method takes adds data onto the blockchain. this method
+     * is private and should only be called by other methods after authenticating the address.
+     * @param {*} data
+     * @param {*} owner
+     */
+    addBlock(data, owner){
         let self = this;
         return new Promise(async (resolve, reject) => {
 
             // Create block object 
-            let newBlock = new BlockClass.Block(data.toString());
+            let newBlock = new BlockClass.Block(data);
 
 
             // Convert Data to Hex
-            newBlock.data = Buffer.alloc(newBlock.data.length, newBlock.data).toString('hex')
+            newBlock.owner = owner;
             
             // Block hight
             newBlock.height = self.chain.length;
@@ -77,50 +74,142 @@ class Blockchain{
         });
     }
 
-    // BLOCKCHAIN QUERY METHOD: getBlock(), returns block by hash.
+    /**
+     * The getBlock(blockQuery) method takes either a hight or an hash as input and
+     * filteres for the relevant critera.
+     * @param {*} blockQuery
+     */
     getBlock(blockQuery){
         let self = this;
+        let bQ = blockQuery;
         return new Promise(async (resolve, reject) => {
 
             // check for match by height
             self.chain.filter(self => {
-                if(self.height.toString() == blockQuery.toString()) {
+                if(self.height.toString() == bQ.toString()) {
                     resolve(self.blockDecode())
                 }
             }); 
-
             // check for match by Hash
             self.chain.filter(self => {
-                if(self.hash.toString() == blockQuery.toString()) {
+                console.log(self.hash)
+                console.log(blockQuery.toString())
+                if(self.hash.toString() == bQ.toString()) {
                     resolve(self.blockDecode())
                 }
             }); 
 
-            reject('Error 404: Block Not Found')
+            resolve()
 
         });
     }
 
-    // BLOCKCHAIN QUERY METHOD: validateChain(), calls the validate method on each block
+      /**
+     * The validateChain() method iterates through the blockchain and calls the
+     * validate method on each block object. This recalculates and compares the hash.
+     */
     validateChain(){
         let self = this;
+        let previousHash = "0x";
         return new Promise(async (resolve, reject) => {
 
             for (let i = 0; i < self.chain.length - 1; i++) { // Iterate through the blockchain
                 
                 self.chain[i].validate() // Call validate on each block
                 .catch(error => {
-                    reject('Block Validation Error Block: ' + i.toString) // Catch errors and throw error
+                    resolve('The Chain has been tampered with') // Catch errors and throw error
                 });
-                
-                // Check if hash is correctly used in next block
-                //if (self.chain[i].hash != self.chain[i].previousHash) { //fix me maybe iterate backwards as i is coming out of range
-                   //reject('Inproper previous hash Block: ' + self.chain[i].toString) FIX ME
-                //}
+
+                if (previousHash !=  self.chain[i].previousHash) {
+                    resolve('The Chain has been tampered with')
+                }
+                previousHash = self.chain[i].hash;
             }
 
-            resolve('True') // Resolve if no errs thrown
+            resolve('The Chain integrity is good') // Resolve if no errs thrown
 
+        });
+    }
+
+    /**
+     * The requestOwnership(address) method will use the address provided to create
+     * a unique time senstive message which is a challenge to the user to prove they
+     * own a wallet. They need to sign this message and use it when submitting blocks.
+     * Resolves with the challenge message.
+     * @param {*} address 
+     */
+    requestOwnership(address) {
+        return new Promise((resolve) => {
+            let challenge = address.toString() + ':' + new Date().getTime().toString().slice(0, -3).toString() + ':submitBoycechainStar' 
+            resolve(Buffer(challenge).toString('hex'))
+        
+        });
+    }
+
+    /**
+     * The submitStar(address, message, signature, star) method
+     * will allow users to register a new Block with the star object
+     * into the chain. This method will resolve with the Block added or
+     * reject with an error.
+     * @param {*} address 
+     * @param {*} message 
+     * @param {*} signature 
+     * @param {*} star 
+     */
+    submitStar(add, mes, sig, sta) {
+        let self = this;
+        let message = mes
+        let address = add
+        let signature = sig
+        let star = sta
+        return new Promise(async (resolve, reject) => {
+            let signedtime = (parseInt(hex2ascii(message).split(':')[1]));
+            let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
+
+            if ((currentTime - signedtime) > 300) { // Check sig has been done in last five minutes.
+                console.log(signedtime)
+                console.log(currentTime)
+                console.log(currentTime - signedtime)
+                resolve('Err Renew Signature')
+            } else {
+                try {
+                    if ((bitcoinMessage.verify(message, address, signature.toString())).toString() == 'true') {
+                        self.addBlock(star, address).then(block => {
+                            resolve(block)
+                        });
+                    }
+                } catch(error) {
+                    resolve(error)
+                }
+            }
+        });
+    }
+
+   /**
+     * The getStarsByWalletAddress(addr) method takes a wallet address
+     * as input and iterates through the chain searching for stars that
+     * belong to the address. Returns a JSON object of stars.
+     * reject with an error.
+     * @param {*} addr 
+     */
+    getStarsByWalletAddress(addr) {
+        let self = this;
+        let address = addr;
+        let stars = [];
+        return new Promise (async (resolve, reject) => {
+           
+           try {
+                for(let i = 0; i < self.chain.length; i++ ) {
+                    if (self.chain[i].owner == address) {
+                        stars.push(JSON.parse(hex2ascii(self.chain[i].data)))
+                    }
+                resolve(stars)
+            }
+            resolve
+           } catch (error) {
+               console.log(error)
+           }
+            
         });
     }
   }  

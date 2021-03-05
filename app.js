@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const BlockChain = require('./src/blockchain.js');
 
 /* ===== Application Server Class ======================
-|  initilises express                                  |
+|  init express                                         |
 |  ====================================================*/
 
 class ApplicationServer {

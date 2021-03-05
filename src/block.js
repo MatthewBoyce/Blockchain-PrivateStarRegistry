@@ -6,10 +6,11 @@ const hex2ascii = require('hex2ascii');
 |  ====================================================*/
 
 class Block {
-    constructor(data){
+    constructor(data, owner){
       this.height = '';
       this.timeStamp = '';
-      this.data = data;
+      this.owner = owner;
+      this.data = Buffer(JSON.stringify(data)).toString('hex');
       this.previousHash = '0x';
       this.hash = '';
     }
@@ -37,7 +38,7 @@ class Block {
         let self = this;
         return new Promise(async (resolve) => { // Return JSON Obj Decoded
             let blockClone = JSON.parse(JSON.stringify(self));
-            blockClone.data = hex2ascii(blockClone.data)
+            blockClone.data = JSON.parse(hex2ascii(blockClone.data))
             resolve(blockClone)
         });
     }
