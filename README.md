@@ -1,6 +1,6 @@
 # Boyce-Coins Star Registery
 
-Basic POC for a private blockchain that uses the blockchain data model to register and verify ownership of discovered stars. Verification is integrated with legacy Bitcoin-Core wallets. Build using OO Javascript, Promises, Express, Crypto.js, Hex2Ascii and bitcoinjs-message.
+Basic POC for a private blockchain that uses the blockchain data model to register and verify ownership of discovered stars. Verification is integrated with legacy Bitcoin-Core wallets. Built using OO Javascript, Promises, Express, Crypto.js, Hex2Ascii and bitcoinjs-message.
 
 Contents
 - /src/block.js - Class file for block.
