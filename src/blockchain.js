@@ -51,12 +51,16 @@ class Blockchain{
             let newHight = self.chain.length; // Capture new Hight
 
             // Check blockchain hight
-            if (newHight === previousHight + 1) {
-                console.log('NEW BLOCK ADDED')
-                console.log(newBlock)
-                resolve(newBlock)
+            if (newHight === previousHight + 1) { 
+                self.validateChain().then(response => { // If validate works success
+                    console.log('NEW BLOCK ADDED')
+                    console.log(newBlock)
+                    resolve(newBlock)
+                }, reason => { // If validate fails return error and pop block
+                    self.chain.pop();
+                    resolve (reason)
+                });       
             }
-            
             // Thow Err
             else {
                 reject('False')
@@ -117,11 +121,11 @@ class Blockchain{
                 
                 self.chain[i].validate() // Call validate on each block
                 .catch(error => {
-                    resolve('The Chain has been tampered with') // Catch errors and throw error
+                    reject('The Chain has been tampered with') // Catch errors and throw error
                 });
 
                 if (previousHash !=  self.chain[i].previousHash) {
-                    resolve('The Chain has been tampered with')
+                    reject('The Chain has been tampered with')
                 }
                 previousHash = self.chain[i].hash;
             }
@@ -140,8 +144,8 @@ class Blockchain{
      */
     requestOwnership(address) {
         return new Promise((resolve) => {
-            let challenge = address.toString() + ':' + new Date().getTime().toString().slice(0, -3).toString() + ':submitBoycechainStar' 
-            resolve(Buffer(challenge).toString('hex'))
+            let message = `${address}:${new Date().getTime().toString().slice(0,-3)}:starRegistry`;
+            resolve(message)
         
         });
     }
@@ -163,13 +167,10 @@ class Blockchain{
         let signature = sig
         let star = sta
         return new Promise(async (resolve, reject) => {
-            let signedtime = (parseInt(hex2ascii(message).split(':')[1]));
+            let signedtime = parseInt(message.split(':')[1]);
             let currentTime = parseInt(new Date().getTime().toString().slice(0, -3));
 
             if ((currentTime - signedtime) > 300) { // Check sig has been done in last five minutes.
-                console.log(signedtime)
-                console.log(currentTime)
-                console.log(currentTime - signedtime)
                 resolve('Err Renew Signature')
             } else {
                 try {
