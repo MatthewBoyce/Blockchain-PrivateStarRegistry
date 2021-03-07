@@ -38,7 +38,7 @@ Basic POC for a private blockchain that uses the blockchain data model to regist
 <img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/StarsByWallet.gif" />
 <br/>
 <br/>
-**Step 5:** Call the validate chain endpoint to have the program check the integrity and position of each block on the chain to see if anything has been tampered with.
+**Step 5:** Call the validate chain endpoint to have the program check the integrity and position of each block on the chain to see if anything has been tampered with. The validate chain method is also called eveytime a new block is added.
 <br/>
 <br/>
 <img src="https://github.com/MatthewBoyce/boyce-coin/blob/main/gifs/Validate%20Chain.gif" />
